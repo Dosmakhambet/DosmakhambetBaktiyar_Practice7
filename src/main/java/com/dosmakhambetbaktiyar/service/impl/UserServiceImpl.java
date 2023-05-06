@@ -2,6 +2,7 @@ package com.dosmakhambetbaktiyar.service.impl;
 
 import com.dosmakhambetbaktiyar.model.User;
 import com.dosmakhambetbaktiyar.repository.UserRepository;
+import com.dosmakhambetbaktiyar.repository.impl.UserRepositoryImpl;
 import com.dosmakhambetbaktiyar.service.UserService;
 
 import java.util.List;
@@ -9,9 +10,10 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private UserRepository repository;
 
-    public UserServiceImpl(UserRepository repository){
-        this.repository = repository;
+    public UserServiceImpl() {
+        repository = new UserRepositoryImpl();
     }
+
     @Override
     public User create(User user) {
         if(user.getId() == null)

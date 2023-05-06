@@ -1,16 +1,12 @@
 package com.dosmakhambetbaktiyar.repository.impl;
 
 import com.dosmakhambetbaktiyar.model.Event;
-import com.dosmakhambetbaktiyar.model.EventUserFile;
-import com.dosmakhambetbaktiyar.model.File;
-import com.dosmakhambetbaktiyar.model.User;
+
 import com.dosmakhambetbaktiyar.repository.EventRepository;
 import com.dosmakhambetbaktiyar.utils.HibernateUtils;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.transform.Transformers;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class EventRepositoryImpl implements EventRepository {
@@ -32,12 +28,12 @@ public class EventRepositoryImpl implements EventRepository {
     @Override
     public Event get(Integer integer) {
         try(Session session = HibernateUtils.getSessionFactory().openSession()){
-            EventUserFile eventUserFile = (EventUserFile) session.createQuery("select e.id as event_id, e.user.id as user_id,e.user.name as user_name, e.file as file from Event e join e.file join e.user where e.id = :id")
+            // TODO: native query
+            Event event = (Event) session.createNativeQuery("SELECT * FROM events e INNER JOIN users u ON u.id = e.user_id INNER JOIN files f ON f.id = e.file_id WHERE id = :id")
                     .setParameter("id",integer)
-                    .setResultTransformer(Transformers.aliasToBean(EventUserFile.class))
-                    .list().get(0);
+                    .getSingleResult();
 
-            return new Event(eventUserFile.getEvent_id(), new User(eventUserFile.getUser_id(), eventUserFile.getUser_name()), eventUserFile.getFile());
+            return event;
         }catch (Exception e){
             System.err.println("Event get() error. " + e.getMessage());
         }
@@ -47,18 +43,11 @@ public class EventRepositoryImpl implements EventRepository {
     @Override
     public List<Event> getAll() {
         try(Session session = HibernateUtils.getSessionFactory().openSession()){
-            Transaction transaction = session.beginTransaction();
-            List events = session.createQuery("select e.id as event_id, e.user.id as user_id,e.user.name as user_name, e.file as file from Event e join e.file join e.user")
-                    .setResultTransformer(Transformers.aliasToBean(EventUserFile.class))
-                    .list();
-            List<Event> eventList = new ArrayList<>();
 
-            for(int i = 0 ; i < events.size(); i ++){
-                EventUserFile eventUserFile = (EventUserFile) events.get(i);
-                eventList.add(new Event(eventUserFile.getEvent_id(), new User(eventUserFile.getUser_id(), eventUserFile.getUser_name()), eventUserFile.getFile()));
-            }
-            transaction.commit();
-            return eventList;
+            List<Event> events = session.createNativeQuery("SELECT * FROM events e INNER JOIN users u ON u.id = e.user_id INNER JOIN files f ON f.id = e.file_id")
+                    .list();
+
+            return events;
         }catch (Exception e){
             System.err.println("Event getAll() error. " + e.getMessage());
         }

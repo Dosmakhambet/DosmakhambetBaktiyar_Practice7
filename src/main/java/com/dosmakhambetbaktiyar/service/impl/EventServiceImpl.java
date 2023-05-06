@@ -2,6 +2,7 @@ package com.dosmakhambetbaktiyar.service.impl;
 
 import com.dosmakhambetbaktiyar.model.Event;
 import com.dosmakhambetbaktiyar.repository.EventRepository;
+import com.dosmakhambetbaktiyar.repository.impl.EventRepositoryImpl;
 import com.dosmakhambetbaktiyar.service.EventService;
 
 import java.util.List;
@@ -9,9 +10,10 @@ import java.util.List;
 public class EventServiceImpl implements EventService {
     private EventRepository repository;
 
-    public EventServiceImpl(EventRepository repository){
-        this.repository = repository;
+    public EventServiceImpl() {
+        repository = new EventRepositoryImpl();
     }
+
     @Override
     public Event create(Event event) {
         if(event.getId() == null)

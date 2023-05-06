@@ -3,12 +3,13 @@ package com.dosmakhambetbaktiyar.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name="event")
+@Table(name="events")
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     @ManyToOne
+    @JoinColumn(name="user_id")
     private User user;
     @OneToOne
     private File file;

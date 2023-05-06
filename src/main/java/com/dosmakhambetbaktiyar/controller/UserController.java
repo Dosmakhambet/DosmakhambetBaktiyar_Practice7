@@ -1,9 +1,10 @@
 package com.dosmakhambetbaktiyar.controller;
 
+import com.dosmakhambetbaktiyar.dto.UserDto;
 import com.dosmakhambetbaktiyar.model.User;
-import com.dosmakhambetbaktiyar.repository.impl.UserRepositoryImpl;
 import com.dosmakhambetbaktiyar.service.UserService;
 import com.dosmakhambetbaktiyar.service.impl.UserServiceImpl;
+import com.google.gson.Gson;
 
 
 import javax.servlet.ServletException;
@@ -14,18 +15,15 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@WebServlet(name = "user", value = "/user")
+@WebServlet(name = "users", value = "/api/V1/users")
 public class UserController extends HttpServlet {
-    private UserService userService;
+    private final UserService userService = new UserServiceImpl();
+    private final Gson gson = new Gson();
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-    }
-
-    @Override
-    public void init() throws ServletException {
-        userService = new UserServiceImpl(new UserRepositoryImpl());
     }
 
     @Override
@@ -36,12 +34,11 @@ public class UserController extends HttpServlet {
         try(PrintWriter out = response.getWriter()){
             if(id == null){
                 List<User> users = userService.getAll();
-                for(User user:users){
-                    out.println(user);
-                }
+                List<UserDto> userDtos = users.stream().map(UserDto::asDto).collect(Collectors.toList());
+                out.println(gson.toJson(userDtos));
             }else{
                 User user = userService.get(Integer.parseInt(id));
-                out.println(user);
+                out.println(gson.toJson(user));
             }
         }catch (Exception e){
             System.out.println(e);
@@ -56,7 +53,7 @@ public class UserController extends HttpServlet {
         String name = request.getParameter("name");
         try(PrintWriter out = response.getWriter()){
             User user = userService.create(new User(name));
-            out.println(user);
+            out.println(gson.toJson(user));
         }catch (Exception e){
             System.out.println(e);
         }
@@ -73,7 +70,7 @@ public class UserController extends HttpServlet {
             User user = userService.get(Integer.parseInt(id));
             user.setName(name);
             userService.update(user);
-            out.println(user);
+            out.println(gson.toJson(user));
         }catch (Exception e){
             System.out.println(e);
         }
@@ -88,7 +85,7 @@ public class UserController extends HttpServlet {
         try(PrintWriter out = response.getWriter()){
             boolean status = userService.delete(Integer.parseInt(id));
 
-            out.println(status);
+            out.println(gson.toJson(status));
         }catch (Exception e){
             System.out.println(e);
         }

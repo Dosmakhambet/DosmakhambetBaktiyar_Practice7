@@ -3,15 +3,13 @@ package com.dosmakhambetbaktiyar.controller;
 import com.dosmakhambetbaktiyar.model.Event;
 import com.dosmakhambetbaktiyar.model.File;
 import com.dosmakhambetbaktiyar.model.User;
-import com.dosmakhambetbaktiyar.repository.impl.EventRepositoryImpl;
-import com.dosmakhambetbaktiyar.repository.impl.FileRepositoryImpl;
-import com.dosmakhambetbaktiyar.repository.impl.UserRepositoryImpl;
 import com.dosmakhambetbaktiyar.service.EventService;
 import com.dosmakhambetbaktiyar.service.FileService;
 import com.dosmakhambetbaktiyar.service.UserService;
 import com.dosmakhambetbaktiyar.service.impl.EventServiceImpl;
 import com.dosmakhambetbaktiyar.service.impl.FileServiceImpl;
 import com.dosmakhambetbaktiyar.service.impl.UserServiceImpl;
+import com.google.gson.Gson;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -20,18 +18,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
-@WebServlet(name = "event", value = "/event")
-public class EventController extends HttpServlet {
-    private EventService eventService;
-    private UserService userService;
-    private FileService fileService;
 
-    @Override
-    public void init() throws ServletException {
-        eventService = new EventServiceImpl(new EventRepositoryImpl());
-        userService = new UserServiceImpl(new UserRepositoryImpl());
-        fileService = new FileServiceImpl(new FileRepositoryImpl());
-    }
+@WebServlet(name = "events", value = "/api/V1/events")
+public class EventController extends HttpServlet {
+    private final EventService eventService = new EventServiceImpl();
+    private final UserService userService = new UserServiceImpl();
+    private final FileService fileService = new FileServiceImpl();
+    private final Gson gson = new Gson();
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -50,7 +43,7 @@ public class EventController extends HttpServlet {
                 }
             }else{
                 Event event = eventService.get(Integer.parseInt(id));
-                out.println(event);
+                out.println(gson.toJson(event));
             }
         }catch (Exception e){
             System.out.println(e);
@@ -67,7 +60,7 @@ public class EventController extends HttpServlet {
             User user = userService.get(Integer.parseInt(user_id));
             File file = fileService.get(Integer.parseInt(file_id));
             Event event = eventService.create(new Event(user,file));
-            out.println(event);
+            out.println(gson.toJson(event));
         }catch (Exception e){
             System.out.println(e);
         }
@@ -87,7 +80,7 @@ public class EventController extends HttpServlet {
             event.setUser(user);
             event.setFile(file);
             eventService.update(event);
-            out.println(event);
+            out.println(gson.toJson(event));
         }catch (Exception e){
             System.out.println(e);
         }
@@ -100,7 +93,7 @@ public class EventController extends HttpServlet {
         String id = request.getParameter("id");
         try(PrintWriter out = response.getWriter()){
             boolean status = eventService.delete(Integer.parseInt(id));
-            out.println(status);
+            out.println(gson.toJson(status));
         }catch (Exception e){
             System.out.println(e);
         }

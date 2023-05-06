@@ -3,7 +3,7 @@ package com.dosmakhambetbaktiyar.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name="file")
+@Table(name="files")
 public class File {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
